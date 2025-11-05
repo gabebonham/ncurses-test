@@ -13,20 +13,29 @@ typedef enum {
 } WidgetType;
 
 typedef struct Widget Widget;
+typedef struct {int wcoef;int hcoef;} CoefRatios;
 
 struct Widget {
     WINDOW *win;
     WidgetType type;
-    Widget *subWidgets;   // flexible array
+    Widget **subWidgets;   // flexible array
     int subWidgetsLen;
     int id;
+    Widget* parentWidget;
     int width;
     int height;
+    int w;
+    int h;
     int labelOffset;
     int x;
     int y;
+    int minw;
+    int minh;
+    int maxw;
+    int maxh;
     bool inputActive;
     char *label;
+    char *name;
     int borderRGB[3];
     int bgRGB[3];
     int textRGB[3];
@@ -48,7 +57,7 @@ typedef struct {
 } Screens;
 typedef struct {
     int len;
-    Widget *widgets;
+    Widget** widgets;
 } Widgets;
 
 #endif
