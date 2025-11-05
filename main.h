@@ -9,6 +9,4 @@
 extern Widgets widgets;
 extern int terminalHeight;
 extern int terminalWidth;
-extern int hRatio;
-extern int wRatio;
 #endif

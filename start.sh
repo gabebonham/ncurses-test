@@ -26,6 +26,9 @@ else
 fi
 
 # Compile
+echo "Compiling project..."
+gcc $CFLAGS ./*.c ./ui/*.c ./utils/*.c -o "$OUTPUT_FILE" -lncurses
+echo "Build successful: $OUTPUT_FILE"
 
 # Run binary with remaining args
 "$OUTPUT_FILE" "${@:2}"

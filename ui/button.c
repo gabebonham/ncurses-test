@@ -5,11 +5,11 @@ int buttonDefaultHeight = 3;
 int buttonDefaultWidth = 8;
 Buttons buttons = {.len=0,.widgets=NULL};
 Widget* createButton(Widget* parent, int id, int x, int y, char *label, bool inputActive,char* name) {
-    CoefRatios coefs = getCoefs(parent->h,parent->w);
-    int w = getStringWidth(label)+3;
-    int h = 4;
-    WINDOW *button = newwin(h, w, x, y);
-    Widget* buttonWidget = malloc(sizeof(Widget));
+    // CoefRatios coefs = getCoefs(parent->h,parent->w);
+    // int w = getStringWidth(label)+3;
+    // int h = 4;
+    // WINDOW *button = newwin(h, w, x, y);
+    // Widget* buttonWidget = malloc(sizeof(Widget));
     // *buttonWidget = (Widget){
     //     .id = id,
     //     .subWidgetsLen = 0,
@@ -43,5 +43,5 @@ Widget* createButton(Widget* parent, int id, int x, int y, char *label, bool inp
     // widgets.widgets = addToWidgetList(widgets.widgets, &buttonWidget, widgets.len++);
  
     // updateWidget(&buttonWidget,&buttonWidget->parentWidget);
-    return buttonWidget;
+    return NULL;
 }

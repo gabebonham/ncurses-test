@@ -11,17 +11,17 @@ Widget** resizeWidgetArray(Widget **sourceArray, int currentSize, int newSize);
 
 int getStringWidth(const char *str);
 
-void updateButton(Widget *widget,Widget *parent);
-void updateWidget(Widget **widget,Widget **parent);
+void updateButton(Widget *widget);
+void updateWidget(Widget *widget);
 void deleteWidgets();
 Widget** addToWidgetList(Widget **array, Widget **newWidget, int currentSize);
 
 int ruleOfThree(int tr, int bl,int br);
-void updateDimensions(Widget *widget,Widget *parent);
+void updateDimensions(Widget *widget);
 void resizeWidget(Widget *widget);
 
 void resizeButton(Widget *widget);
-CoefRatios getCoefs(int parentH,int parentW);
 
+void getProportionalUnits(Widget* widget);
 Widget* findWidgetByName(char* name);
 #endif

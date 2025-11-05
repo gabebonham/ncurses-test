@@ -1,22 +1,34 @@
 #include "./ui.h"
 
 Screens screens = { .len = 0, .widgets = NULL };
-
-Widget* createScreen(WINDOW *screen,Widget *parent, int id, int w, int h, int x, int y, 
-                    char *label, int offset, bool inputActive,
-                    int minw, int minh, int maxw, int maxh, char *name) {
-
-    int wunit = wRatio;
-    int hunit = hRatio;
-
+void createScreen(
+    Widget *parent, int id, int w, int h, int x, int y, 
+    char *label, bool inputActive,
+    int minw, int minh, int maxw, int maxh, char *name
+) {
     int parentH = 0, parentW = 0;
-    if (parent->win==stdscr){
-        getmaxyx(stdscr, parentH, parentW);
-    }
-    getmaxyx(parent->win, parentH, parentW);
 
+    if (!parent) {
+        getmaxyx(stdscr, parentH, parentW);
+    } else if (parent->win) {
+        getmaxyx(parent->win, parentH, parentW);
+    } else {
+        return;
+    }
 
     Widget* screenWidget = malloc(sizeof(Widget));
+    if (!screenWidget) return;
+
+    // Compute proportional units
+    float unitH = (float)parentH / propH;
+    float unitW = (float)parentW / propW;
+
+    // Now safely compute height/width
+    float height = unitH * h;
+    float width  = unitW * w;
+
+    WINDOW *screen = subwin(stdscr, height, width, y, x);
+
     *screenWidget = (Widget){
         .id = id,
         .win = screen,
@@ -25,12 +37,13 @@ Widget* createScreen(WINDOW *screen,Widget *parent, int id, int w, int h, int x,
         .subWidgets = NULL,
         .subWidgetsLen = 0,
         .parentWidget = parent,  
-        .height = ruleOfThree(parentH, 4, 10),
-        .width  = ruleOfThree(parentW, 14, 24),
+        .height = height,
+        .width  = width,
+        .units = { .unitH = unitH, .unitW = unitW },
         .w = w,
         .h = h,
         .label = label,
-        .labelOffset = offset,
+        .labelOffset = 1,
         .type = WSCREEN,
         .inputActive = inputActive,
         .textRGB = {0, 0, 0},
@@ -43,12 +56,5 @@ Widget* createScreen(WINDOW *screen,Widget *parent, int id, int w, int h, int x,
         .y = y
     };
 
-    // parent->subWidgets = addToWidgetList(parent->subWidgets, screenWidget, parent->subWidgetsLen);
-    // parent->subWidgetsLen++;
-
-    // screens.widgets = addToWidgetList(screens.widgets, screenWidget, screens.len++);
     widgets.widgets = addToWidgetList(widgets.widgets, &screenWidget, widgets.len++);
-
-    updateWidget(&screenWidget,&screenWidget->parentWidget);
-    return screenWidget;
 }

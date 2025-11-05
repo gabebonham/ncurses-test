@@ -10,15 +10,13 @@
 extern Widgets widgets;
 
 extern Inputs inputs;
-extern int inputDefaultHeight;
-extern int inputDefaultWidth;
+extern float propW;
+extern float propH;
 
 Widget* createInput(Widget *parent, int id, int w, int h,int x, int y, char *label, int offset,bool inputActive,int minw, int minh,int maxw, int maxh,char* name);
 Widget* createInputDefault(Widget* parent, int id, int w, int h,int x, int y,bool inputActive,int minw, int minh,int maxw, int maxh,char* name);
 
 extern Buttons buttons;
-extern int buttonDefaultHeight;
-extern int buttonDefaultWidth;
 
 Widget* createButton(Widget* parent, int id, int x, int y, char *label, bool inputActive,char* name);
 
@@ -27,5 +25,5 @@ bool isInside(WINDOW *win, int y, int x);
 void handleClick(WINDOW *win,int y, int x,bool inputActive);
 
 extern Screens screens;
-Widget* createScreen(WINDOW *screen,Widget *parent, int id, int w, int h, int x, int y, char *label, int offset, bool inputActive,int minw, int minh,int maxw, int maxh,char* name);
+void createScreen(Widget *parent, int id, int w, int h, int x, int y, char *label, bool inputActive,int minw, int minh,int maxw, int maxh,char* name);
 #endif
