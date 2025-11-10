@@ -4,44 +4,70 @@
 int buttonDefaultHeight = 3;
 int buttonDefaultWidth = 8;
 Buttons buttons = {.len=0,.widgets=NULL};
-Widget* createButton(Widget* parent, int id, int x, int y, char *label, bool inputActive,char* name) {
-    // CoefRatios coefs = getCoefs(parent->h,parent->w);
-    // int w = getStringWidth(label)+3;
-    // int h = 4;
-    // WINDOW *button = newwin(h, w, x, y);
-    // Widget* buttonWidget = malloc(sizeof(Widget));
-    // *buttonWidget = (Widget){
-    //     .id = id,
-    //     .subWidgetsLen = 0,
-    //     .win = button,           // use pointer directly
-    //     .w = 6,          
-    //     .h = 3,   
-    //     .bgRGB = {255,255,255},
-    //     .borderRGB = {0,0,0},
-    //     .textRGB = {0,0,0},
-    //     .parentWidget = parent,
-    //     .height = 0,
-    //     .width = 0,
-    //     .label = label,          // assign pointer
-    //     .labelOffset = 9999,
-    //     .subWidgets = NULL,      // start empty
-    //     .type = WBUTTON,         // correct enum
-    //     .inputActive = inputActive,
-    //     .x = x,
-    //     .minh = 2,
-    //     .minw = getStringWidth(label)+1,
-    //     .maxh = h+1,
-    //     .maxw = w+1,
-    //     .name = name,
-    //     .y = y
-    // };
 
-    // // parent->subWidgets = addToWidgetList(parent->subWidgets, buttonWidget, parent->subWidgetsLen);
-    // // parent->subWidgetsLen++;
+void createButton(
+    Widget *parent, int id, int w, int h, int x, int y, 
+    char *label, bool inputActive,
+    int minw, int minh, int maxw, int maxh, char *name
+) {
+    int parentH = 0, parentW = 0;
 
-    // // buttons.widgets = addToWidgetList(buttons.widgets, buttonWidget, buttons.len++);
-    // widgets.widgets = addToWidgetList(widgets.widgets, &buttonWidget, widgets.len++);
- 
-    // updateWidget(&buttonWidget,&buttonWidget->parentWidget);
-    return NULL;
+    if (!parent) {
+        getmaxyx(stdscr, parentH, parentW);
+    } else if (parent->win) {
+        getmaxyx(parent->win, parentH, parentW);
+    } else {
+        return;
+    }
+
+    Widget* screenButton = malloc(sizeof(Widget));
+    if (!screenButton) return;
+
+    // Compute proportional units
+    float unitH = (float)parentH / propH;
+    float unitW = (float)parentW / propW;
+
+    // Now safely compute height/width
+    float height = unitH * h;
+    float width  = unitW * w;
+    float xPos  = x==0?0:unitW * x;
+    float yPos  = y==0?0:unitH * y;
+    WINDOW *screen = subwin(
+        parent?(parent->win ? parent->win : stdscr):stdscr,
+        (int)height,
+        (int)width,
+        (int)y,
+        (int)x
+    );
+
+    *screenButton = (Widget){
+        .id = id,
+        .win = screen,
+        .bgRGB = {255, 255, 255},
+        .borderRGB = {0, 0, 0},
+        .subWidgets = NULL,
+        .subWidgetsLen = 0,
+        .parentWidget = parent,  
+        .height = height,
+        .width  = width,
+        .units = { .unitH = unitH, .unitW = unitW },
+        .w = w,
+        .h = h,
+        .label = label,
+        .labelOffset = 1,
+        .type = WBUTTON,
+        .inputActive = inputActive,
+        .textRGB = {0, 0, 0},
+        .minh = minh,
+        .minw = minw,
+        .maxh = maxh,
+        .maxw = maxw,
+        .name = name,
+        .xPos = xPos,
+        .x = x,
+        .y = y,
+        .yPos = yPos
+    };
+
+    widgets.widgets = addToWidgetList(widgets.widgets, &screenButton, widgets.len++);
 }

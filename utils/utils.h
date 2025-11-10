@@ -20,8 +20,9 @@ int ruleOfThree(int tr, int bl,int br);
 void updateDimensions(Widget *widget);
 void resizeWidget(Widget *widget);
 
-void resizeButton(Widget *widget);
-
 void getProportionalUnits(Widget* widget);
 Widget* findWidgetByName(char* name);
+void handleInput(Widget* widget, char* buffer, int* index,int ch,MEVENT* event);
+void showOnScreen(char* widgetName, char* buffer);
+bool clickedWidget(Widget* widget,int x, int y);
 #endif

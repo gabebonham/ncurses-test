@@ -51,26 +51,45 @@ void getProportionalUnits(Widget* widget) {
     } else if (widget->parentWidget->win) {
         parentH = widget->parentWidget->height;
         parentW = widget->parentWidget->width;
+        
     } else {
         getmaxyx(stdscr, parentH, parentW);
     }
 
-    unitH = (float)parentH / propH;
-    unitW = (float)parentW / propW;
+    // unitH = (float)parentH / propH;
+    // unitW = (float)parentW / propW;
 
-    widget->units.unitH = unitH;
-    widget->units.unitW = unitW;
+    // widget->units.unitH = unitH;
+    // widget->units.unitW = unitW;
+    // if (widget->type==WSCREEN){
+    //     widget->width = widget->parentWidget->width*widget->wper;
+    //     widget->height = widget->parentWidget->height*widget->hper;
+    // }
+    // if (widget->type==WINPUT){
+    //     widget->width = widget->width;
+    //     widget->height = widget->height;
+    // }
 }
 
 void updateDimensions(Widget *widget){
     getProportionalUnits(widget);
+    
     widget->height = widget->units.unitH*widget->h;
     widget->width = widget->units.unitW*widget->w;
     
+    widget->xPos = widget->x == 0 ? 0 : widget->units.unitW * widget->x;
+    widget->yPos = widget->y == 0 ? 0 : widget->units.unitH * widget->y;
 }
+
 void resizeWidget(Widget *widget) {
-    wresize(widget->win, widget->height, widget->width);
-    mvwin(widget->win, 0, 0);
+    
+    // if (widget->parentWidget && widget->parentWidget->win) {
+    //     mvderwin(widget->win, widget->yPos, widget->xPos);
+    // } else {
+    //     mvwin(widget->win, widget->yPos, widget->xPos);
+    // }
+    // if (widget->type!=WINPUT) wresize(widget->win, (int)widget->height, (int)widget->width);
+    // wresize(widget->win, (int)widget->height, (int)widget->width);
     wclear(widget->win);
     box(widget->win, 0, 0);
 
@@ -82,16 +101,7 @@ void resizeWidget(Widget *widget) {
     wrefresh(widget->win);
 }
 
-void resizeButton(Widget *widget){
-    wresize(widget->win, widget->height, widget->width);
-    mvwin(widget->win, widget->y, widget->x);
-    wclear(widget->win);
-    box(widget->win, 0, 0);
-    if (strcmp(widget->label, "label") != 0) {
-        mvwprintw(widget->win, 2, 2, "%s", widget->label);
-    }
-    delwin(widget->win);
-}
+
 void updateWidget(Widget *widget) {
     if (!widget || !widget->win) return;
     if (widget->parentWidget && !widget->parentWidget->win) return;
@@ -100,7 +110,6 @@ void updateWidget(Widget *widget) {
 }
 void updateButton(Widget *widget){
     updateDimensions(widget);
-    resizeButton(widget);
 }
 
 void deleteWidgets() {
@@ -119,4 +128,61 @@ Widget* findWidgetByName(char* name) {
         }
     }
     return NULL; // not found
+}
+void showOnScreen(char* widgetName, char* buffer){
+    Widget* widget = findWidgetByName(widgetName);
+    werase(widget->win);        
+    box(widget->win, 0, 0);    
+    mvwprintw(widget->win, 1, 1, "%s", buffer);
+    wrefresh(widget->win);
+}
+bool clickedWidget(Widget* widget,int x, int y){
+    bool isInside =
+        x >= widget->x &&
+        x <  widget->x + widget->width &&
+        y >= widget->y &&
+        y <  widget->y + widget->height;
+    return isInside;
+}
+void handleInput(Widget* widget, char* buffer, int* index,int ch,MEVENT* event) {
+    if (ch == KEY_MOUSE) {
+        if (getmouse(event) == OK) {
+            if (clickedWidget(widget, event->x, event->y)) {
+                widget->inputActive = true;
+            } else {
+                widget->inputActive = false;
+            }
+        } else {
+            widget->inputActive = false;
+        }
+        return;
+    }
+    if (!widget->inputActive) return;
+    if (ch == '\n' || ch == KEY_ENTER) {
+        showOnScreen("viewnotesscreen", buffer);
+        werase(widget->win);       
+        widget->inpCount = 0;
+    }
+    if (widget->inpCount==widget->width-2){
+        buffer[*index] = '\n';
+        (*index)++;
+        buffer[*index] = ' ';
+        (*index)++;
+        widget->inpCount = 1;
+    }
+    if (ch >= 32 && ch <= 126 && *index < 255) {
+        buffer[*index] = (char)ch;
+        (*index)++;
+        buffer[*index] = '\0';
+        widget->inpCount++;
+    }
+    werase(widget->win);         // clear window
+    box(widget->win, 0, 0);      // redraw box
+    mvwprintw(widget->win, 1, 1, "%s", buffer);
+    if (widget->label && strcmp(widget->label, "label") != 0) {
+        if (widget->labelOffset < widget->width - 1) {
+            mvwprintw(widget->win, 0, widget->labelOffset, "%s", widget->label);
+        }
+    }
+    wrefresh(widget->win);
 }
